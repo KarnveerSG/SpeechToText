@@ -1,0 +1,32 @@
+Icon Resource for VoiceType
+============================
+
+The application references an embedded icon resource named "icon.ico" for the system tray.
+
+To add an icon to the project:
+
+1. Create or obtain a .ico file (16x16, 32x32, 48x48, 256x256 recommended)
+2. Save it as "icon.ico" in this directory (src/VoiceType/)
+3. The .csproj file is already configured to embed it as a resource
+
+Suggested icon designs:
+- Microphone symbol
+- Speech bubble with waveform
+- Simple "V" or "VT" lettermark
+- Audio waveform pattern
+
+Free icon resources:
+- https://www.iconfinder.com (search "microphone", filter by free)
+- https://icons8.com
+- https://www.flaticon.com
+
+Or use any icon creation tool:
+- IconFX (Windows)
+- GIMP with ICO plugin
+- Online converters (png-to-ico.com)
+
+Default behavior (no icon.ico required):
+- VoiceType.csproj embeds icon.ico only when the file exists (Condition="Exists('icon.ico')")
+- App.xaml.cs LoadIcon() tries manifest resource "VoiceType.icon.ico", then falls back to
+  System.Drawing.SystemIcons.Application for the tray NotifyIcon
+- The app builds and runs correctly without a custom icon
