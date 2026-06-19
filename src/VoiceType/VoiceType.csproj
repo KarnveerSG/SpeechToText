@@ -1,0 +1,110 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>VoiceType</AssemblyName>
+    <RootNamespace>VoiceType</RootNamespace>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <_WhisperNativeDir>$([MSBuild]::EnsureTrailingSlash($([MSBuild]::EnsureTrailingSlash($(NuGetPackageRoot)))whisper.net.runtime\1.9.1\build\win-x64))</_WhisperNativeDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="InputSimulatorPlus" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="System.Text.Json" Version="10.0.2" />
+    <PackageReference Include="Whisper.net" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Ship native Whisper DLLs beside the exe (required for single-file publish). -->
+  <Target Name="IncludeWhisperRuntimes" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <Content Include="$(_WhisperNativeDir)ggml-base-whisper.dll">
+        <Link>runtimes\win-x64\ggml-base-whisper.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Include="$(_WhisperNativeDir)ggml-cpu-whisper.dll">
+        <Link>runtimes\win-x64\ggml-cpu-whisper.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Include="$(_WhisperNativeDir)ggml-whisper.dll">
+        <Link>runtimes\win-x64\ggml-whisper.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Include="$(_WhisperNativeDir)whisper.dll">
+        <Link>runtimes\win-x64\whisper.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <EmbeddedResource Include="$(_WhisperNativeDir)ggml-base-whisper.dll">
+        <Link>whisper-native\ggml-base-whisper.dll</Link>
+        <LogicalName>whisper.win-x64.ggml-base-whisper.dll</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="$(_WhisperNativeDir)ggml-cpu-whisper.dll">
+        <Link>whisper-native\ggml-cpu-whisper.dll</Link>
+        <LogicalName>whisper.win-x64.ggml-cpu-whisper.dll</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="$(_WhisperNativeDir)ggml-whisper.dll">
+        <Link>whisper-native\ggml-whisper.dll</Link>
+        <LogicalName>whisper.win-x64.ggml-whisper.dll</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="$(_WhisperNativeDir)whisper.dll">
+        <Link>whisper-native\whisper.dll</Link>
+        <LogicalName>whisper.win-x64.whisper.dll</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyWhisperRuntimesToPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <_RuntimeSourceDir>$(ProjectDir)bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\runtimes\win-x64\</_RuntimeSourceDir>
+      <_RuntimePublishDir>$(PublishDir)runtimes\win-x64\</_RuntimePublishDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_RuntimePublishDir)" />
+    <Copy SourceFiles="$(_RuntimeSourceDir)ggml-base-whisper.dll"
+          DestinationFolder="$(_RuntimePublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_RuntimeSourceDir)ggml-base-whisper.dll')" />
+    <Copy SourceFiles="$(_RuntimeSourceDir)ggml-cpu-whisper.dll"
+          DestinationFolder="$(_RuntimePublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_RuntimeSourceDir)ggml-cpu-whisper.dll')" />
+    <Copy SourceFiles="$(_RuntimeSourceDir)ggml-whisper.dll"
+          DestinationFolder="$(_RuntimePublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_RuntimeSourceDir)ggml-whisper.dll')" />
+    <Copy SourceFiles="$(_RuntimeSourceDir)whisper.dll"
+          DestinationFolder="$(_RuntimePublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_RuntimeSourceDir)whisper.dll')" />
+  </Target>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="VoiceType.Tests" />
+  </ItemGroup>
+
+</Project>
